@@ -8,89 +8,63 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 11% 18%;
+    --foreground: 210 20% 95%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 210 11% 20%;
+    --card-foreground: 210 20% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 210 11% 20%;
+    --popover-foreground: 210 20% 95%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 210 20% 95%;
+    --primary-foreground: 210 11% 18%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 11% 25%;
+    --secondary-foreground: 210 20% 95%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 11% 25%;
+    --muted-foreground: 210 10% 60%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 11% 25%;
+    --accent-foreground: 210 20% 95%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 210 20% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 210 11% 30%;
+    --input: 210 11% 25%;
+    --ring: 210 20% 95%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* Node colors - pastel palette */
+    --node-pink: 340 82% 80%;
+    --node-orange: 25 90% 75%;
+    --node-gray: 210 10% 70%;
+    --node-blue: 210 82% 75%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Canvas colors */
+    --canvas-bg: 210 11% 17%;
+    --canvas-grid: 210 11% 22%;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Socket colors */
+    --socket-input: 190 70% 60%;
+    --socket-output: 30 80% 65%;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Connection colors */
+    --connection-valid: 142 76% 36%;
+    --connection-invalid: 0 84% 60%;
+    --connection-neutral: 210 10% 50%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 210 11% 20%;
+    --sidebar-foreground: 210 20% 95%;
+    --sidebar-primary: 210 20% 95%;
+    --sidebar-primary-foreground: 210 11% 18%;
+    --sidebar-accent: 210 11% 25%;
+    --sidebar-accent-foreground: 210 20% 95%;
+    --sidebar-border: 210 11% 30%;
+    --sidebar-ring: 210 20% 95%;
   }
 }
 
@@ -100,6 +74,24 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-canvas-bg text-foreground;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+}
+
+@layer utilities {
+  .node-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .node-shadow-lifted {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .grid-pattern {
+    background-image: 
+      linear-gradient(hsl(var(--canvas-grid)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--canvas-grid)) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }

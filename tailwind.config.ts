@@ -47,6 +47,25 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        node: {
+          pink: "hsl(var(--node-pink))",
+          orange: "hsl(var(--node-orange))",
+          gray: "hsl(var(--node-gray))",
+          blue: "hsl(var(--node-blue))",
+        },
+        canvas: {
+          bg: "hsl(var(--canvas-bg))",
+          grid: "hsl(var(--canvas-grid))",
+        },
+        socket: {
+          input: "hsl(var(--socket-input))",
+          output: "hsl(var(--socket-output))",
+        },
+        connection: {
+          valid: "hsl(var(--connection-valid))",
+          invalid: "hsl(var(--connection-invalid))",
+          neutral: "hsl(var(--connection-neutral))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

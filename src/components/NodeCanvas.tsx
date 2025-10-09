@@ -1,0 +1,295 @@
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { NodeData, Connection, Position, HistoryState } from '@/types/node';
+import { Node } from './Node';
+import { ConnectionLine } from './ConnectionLine';
+import { Toolbar } from './Toolbar';
+import { toast } from 'sonner';
+
+const INITIAL_NODES: NodeData[] = [
+  { id: '1', hiddenName: 'A', displayName: 'Inicio', position: { x: 100, y: 200 }, color: 'pink' },
+  { id: '2', hiddenName: 'B', displayName: 'Proceso 1', position: { x: 100, y: 320 }, color: 'orange' },
+  { id: '3', hiddenName: 'C', displayName: 'Proceso 2', position: { x: 100, y: 440 }, color: 'gray' },
+  { id: '4', hiddenName: 'D', displayName: 'Final', position: { x: 100, y: 560 }, color: 'blue' },
+];
+
+export const NodeCanvas = () => {
+  const [nodes, setNodes] = useState<NodeData[]>(INITIAL_NODES);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [testMode, setTestMode] = useState(false);
+  const [draggingNode, setDraggingNode] = useState<string | null>(null);
+  const [connectingFrom, setConnectingFrom] = useState<{ nodeId: string; x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState<Position>({ x: 0, y: 0 });
+  const [panOffset, setPanOffset] = useState<Position>({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState<Position>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [history, setHistory] = useState<HistoryState[]>([{ nodes: INITIAL_NODES, connections: [] }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  const saveToHistory = useCallback(() => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ nodes: [...nodes], connections: [...connections] });
+    if (newHistory.length > 50) newHistory.shift();
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  }, [nodes, connections, history, historyIndex]);
+
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      const prevState = history[historyIndex - 1];
+      setNodes(prevState.nodes);
+      setConnections(prevState.connections);
+      setHistoryIndex(historyIndex - 1);
+      toast.info('Deshecho');
+    }
+  }, [history, historyIndex]);
+
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const nextState = history[historyIndex + 1];
+      setNodes(nextState.nodes);
+      setConnections(nextState.connections);
+      setHistoryIndex(historyIndex + 1);
+      toast.info('Rehecho');
+    }
+  }, [history, historyIndex]);
+
+  const validateConnection = useCallback((fromNodeId: string, toNodeId: string): boolean => {
+    const fromNode = nodes.find(n => n.id === fromNodeId);
+    const toNode = nodes.find(n => n.id === toNodeId);
+    
+    if (!fromNode || !toNode) return false;
+
+    const sequence = ['A', 'B', 'C', 'D'];
+    const fromIndex = sequence.indexOf(fromNode.hiddenName);
+    const toIndex = sequence.indexOf(toNode.hiddenName);
+
+    return toIndex === fromIndex + 1;
+  }, [nodes]);
+
+  const handleNodeDragStart = (nodeId: string) => {
+    setDraggingNode(nodeId);
+  };
+
+  const handleNodeDrag = (nodeId: string, position: Position) => {
+    setNodes(prev => prev.map(node => 
+      node.id === nodeId ? { ...node, position } : node
+    ));
+  };
+
+  const handleNodeDragEnd = () => {
+    if (draggingNode) {
+      saveToHistory();
+      setDraggingNode(null);
+    }
+  };
+
+  const handleConnectionStart = (nodeId: string, position: Position) => {
+    setConnectingFrom({ nodeId, x: position.x, y: position.y });
+  };
+
+  const handleConnectionEnd = (toNodeId: string) => {
+    if (connectingFrom && connectingFrom.nodeId !== toNodeId) {
+      const existingConnection = connections.find(
+        c => c.fromNodeId === connectingFrom.nodeId || c.toNodeId === toNodeId
+      );
+
+      if (existingConnection) {
+        toast.error('Ya existe una conexión en este nodo');
+        setConnectingFrom(null);
+        return;
+      }
+
+      const isValid = validateConnection(connectingFrom.nodeId, toNodeId);
+      const newConnection: Connection = {
+        id: `${connectingFrom.nodeId}-${toNodeId}`,
+        fromNodeId: connectingFrom.nodeId,
+        toNodeId,
+        isValid,
+      };
+
+      setConnections(prev => [...prev, newConnection]);
+      saveToHistory();
+      
+      if (isValid) {
+        toast.success('Conexión correcta');
+      } else {
+        toast.error('Conexión fuera de secuencia');
+      }
+    }
+    setConnectingFrom(null);
+  };
+
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    if (e.button === 1 || (e.button === 0 && e.altKey)) {
+      setIsPanning(true);
+      setPanStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+    }
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect) {
+      setMousePos({
+        x: (e.clientX - rect.left - panOffset.x) / zoom,
+        y: (e.clientY - rect.top - panOffset.y) / zoom,
+      });
+    }
+
+    if (isPanning) {
+      setPanOffset({
+        x: e.clientX - panStart.x,
+        y: e.clientY - panStart.y,
+      });
+    }
+  };
+
+  const handleCanvasMouseUp = () => {
+    setIsPanning(false);
+    if (connectingFrom) {
+      setConnectingFrom(null);
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY * -0.001;
+    const newZoom = Math.min(Math.max(0.5, zoom + delta), 2);
+    setZoom(newZoom);
+  };
+
+  const handleSubmit = () => {
+    const correctSequence = ['A', 'B', 'C', 'D'];
+    
+    if (connections.length !== 3) {
+      toast.error('Faltan conexiones. Debes conectar los 4 nodos en secuencia.');
+      return;
+    }
+
+    const allValid = connections.every(c => c.isValid);
+    
+    // Verificar que la cadena sea completa
+    const nodeMap = new Map(nodes.map(n => [n.id, n]));
+    const connMap = new Map(connections.map(c => [c.fromNodeId, c.toNodeId]));
+    
+    let currentId = nodes.find(n => n.hiddenName === 'A')?.id;
+    const sequence: string[] = [];
+    
+    while (currentId && sequence.length < 4) {
+      const node = nodeMap.get(currentId);
+      if (node) sequence.push(node.hiddenName);
+      currentId = connMap.get(currentId);
+    }
+
+    const isComplete = sequence.length === 4 && 
+                      sequence.every((name, i) => name === correctSequence[i]);
+
+    if (isComplete && allValid) {
+      toast.success('¡Excelente! Secuencia correcta A → B → C → D', {
+        duration: 5000,
+      });
+      console.log('Resultado:', {
+        pass: true,
+        sequence,
+        connections: connections.map(c => ({
+          from: nodeMap.get(c.fromNodeId)?.hiddenName,
+          to: nodeMap.get(c.toNodeId)?.hiddenName,
+        })),
+      });
+    } else {
+      toast.error('Secuencia incorrecta. Revisa las conexiones.', {
+        duration: 5000,
+      });
+      console.log('Resultado:', {
+        pass: false,
+        sequence,
+        expected: correctSequence,
+      });
+    }
+  };
+
+  const deleteConnection = (connectionId: string) => {
+    setConnections(prev => prev.filter(c => c.id !== connectionId));
+    saveToHistory();
+    toast.info('Conexión eliminada');
+  };
+
+  return (
+    <div className="w-full h-screen flex flex-col bg-canvas-bg">
+      <Toolbar
+        testMode={testMode}
+        onToggleTestMode={() => setTestMode(!testMode)}
+        onUndo={undo}
+        onRedo={redo}
+        onSubmit={handleSubmit}
+        canUndo={historyIndex > 0}
+        canRedo={historyIndex < history.length - 1}
+      />
+      
+      <div
+        ref={canvasRef}
+        className="flex-1 relative overflow-hidden grid-pattern cursor-move"
+        onMouseDown={handleCanvasMouseDown}
+        onMouseMove={handleCanvasMouseMove}
+        onMouseUp={handleCanvasMouseUp}
+        onMouseLeave={handleCanvasMouseUp}
+        onWheel={handleWheel}
+      >
+        <div
+          style={{
+            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`,
+            transformOrigin: '0 0',
+          }}
+          className="relative w-full h-full"
+        >
+          {/* Render connections */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: 'visible' }}>
+            {connections.map(conn => {
+              const fromNode = nodes.find(n => n.id === conn.fromNodeId);
+              const toNode = nodes.find(n => n.id === conn.toNodeId);
+              if (!fromNode || !toNode) return null;
+
+              return (
+                <ConnectionLine
+                  key={conn.id}
+                  from={{ x: fromNode.position.x + 180, y: fromNode.position.y + 45 }}
+                  to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
+                  isValid={conn.isValid}
+                  onDelete={() => deleteConnection(conn.id)}
+                />
+              );
+            })}
+            
+            {/* Rubber band connection */}
+            {connectingFrom && (
+              <ConnectionLine
+                from={{ x: connectingFrom.x, y: connectingFrom.y }}
+                to={mousePos}
+                isValid={null}
+                onDelete={() => {}}
+              />
+            )}
+          </svg>
+
+          {/* Render nodes */}
+          {nodes.map(node => (
+            <Node
+              key={node.id}
+              node={node}
+              testMode={testMode}
+              isDragging={draggingNode === node.id}
+              onDragStart={() => handleNodeDragStart(node.id)}
+              onDrag={(pos) => handleNodeDrag(node.id, pos)}
+              onDragEnd={handleNodeDragEnd}
+              onConnectionStart={(pos) => handleConnectionStart(node.id, pos)}
+              onConnectionEnd={() => handleConnectionEnd(node.id)}
+              isConnecting={connectingFrom?.nodeId === node.id}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
