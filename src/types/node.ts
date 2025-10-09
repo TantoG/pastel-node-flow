@@ -9,6 +9,8 @@ export interface NodeData {
   displayName: string;
   position: Position;
   color: 'pink' | 'orange' | 'gray' | 'blue';
+  icon: string; // lucide icon name
+  description?: string;
 }
 
 export interface Connection {

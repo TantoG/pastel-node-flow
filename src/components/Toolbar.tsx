@@ -24,14 +24,24 @@ export const Toolbar = ({
     <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3">
       <div className="flex items-center gap-2">
         <Button
-          variant="secondary"
+          variant={testMode ? "default" : "secondary"}
           size="sm"
           onClick={onToggleTestMode}
-          className="gap-2"
+          className="gap-2 relative"
         >
-          {testMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          {testMode ? 'Modo Estudiante' : 'Modo Test'}
+          {testMode ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          <span className="font-medium">
+            {testMode ? 'Modo Profesor' : 'Modo Estudiante'}
+          </span>
+          {testMode && (
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-connection-valid rounded-full animate-pulse" />
+          )}
         </Button>
+        {testMode && (
+          <span className="text-[10px] text-muted-foreground bg-secondary px-2 py-1 rounded">
+            Doble-clic para editar títulos
+          </span>
+        )}
       </div>
 
       <div className="h-6 w-px bg-border" />
@@ -64,14 +74,14 @@ export const Toolbar = ({
       <Button
         onClick={onSubmit}
         size="sm"
-        className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+        className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
       >
         <Send className="w-4 h-4" />
-        Entregar
+        Entregar Evaluación
       </Button>
 
-      <div className="text-xs text-muted-foreground">
-        Pan: Alt+Arrastrar | Zoom: Rueda del ratón
+      <div className="text-xs text-muted-foreground hidden md:block">
+        <span className="opacity-70">Pan:</span> Alt+Arrastrar | <span className="opacity-70">Zoom:</span> Rueda
       </div>
     </div>
   );

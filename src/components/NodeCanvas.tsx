@@ -6,10 +6,10 @@ import { Toolbar } from './Toolbar';
 import { toast } from 'sonner';
 
 const INITIAL_NODES: NodeData[] = [
-  { id: '1', hiddenName: 'A', displayName: 'Inicio', position: { x: 100, y: 200 }, color: 'pink' },
-  { id: '2', hiddenName: 'B', displayName: 'Proceso 1', position: { x: 100, y: 320 }, color: 'orange' },
-  { id: '3', hiddenName: 'C', displayName: 'Proceso 2', position: { x: 100, y: 440 }, color: 'gray' },
-  { id: '4', hiddenName: 'D', displayName: 'Final', position: { x: 100, y: 560 }, color: 'blue' },
+  { id: '1', hiddenName: 'A', displayName: 'Inicio', position: { x: 100, y: 200 }, color: 'pink', icon: 'play', description: 'Punto de inicio' },
+  { id: '2', hiddenName: 'B', displayName: 'Proceso 1', position: { x: 100, y: 320 }, color: 'orange', icon: 'settings', description: 'Configuración' },
+  { id: '3', hiddenName: 'C', displayName: 'Proceso 2', position: { x: 100, y: 440 }, color: 'gray', icon: 'cpu', description: 'Procesamiento' },
+  { id: '4', hiddenName: 'D', displayName: 'Final', position: { x: 100, y: 560 }, color: 'blue', icon: 'check-circle', description: 'Resultado' },
 ];
 
 export const NodeCanvas = () => {
@@ -77,6 +77,13 @@ export const NodeCanvas = () => {
     setNodes(prev => prev.map(node => 
       node.id === nodeId ? { ...node, position } : node
     ));
+  };
+
+  const handleNodeNameEdit = (nodeId: string, newName: string) => {
+    setNodes(prev => prev.map(node => 
+      node.id === nodeId ? { ...node, displayName: newName } : node
+    ));
+    saveToHistory();
   };
 
   const handleNodeDragEnd = () => {
@@ -286,6 +293,7 @@ export const NodeCanvas = () => {
               onConnectionStart={(pos) => handleConnectionStart(node.id, pos)}
               onConnectionEnd={() => handleConnectionEnd(node.id)}
               isConnecting={connectingFrom?.nodeId === node.id}
+              onNameEdit={(newName) => handleNodeNameEdit(node.id, newName)}
             />
           ))}
         </div>

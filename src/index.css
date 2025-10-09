@@ -89,9 +89,24 @@ All colors MUST be HSL.
   }
 
   .grid-pattern {
+    background-color: hsl(var(--canvas-bg));
     background-image: 
+      /* Main grid */
       linear-gradient(hsl(var(--canvas-grid)) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--canvas-grid)) 1px, transparent 1px);
-    background-size: 20px 20px;
+      linear-gradient(90deg, hsl(var(--canvas-grid)) 1px, transparent 1px),
+      /* Axis lines - subtle */
+      linear-gradient(to right, transparent calc(50% - 0.5px), hsl(210 10% 30%) calc(50% - 0.5px), hsl(210 10% 30%) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+      linear-gradient(to bottom, transparent calc(50% - 0.5px), hsl(210 10% 30%) calc(50% - 0.5px), hsl(210 10% 30%) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    background-size: 20px 20px, 20px 20px, 100% 100%, 100% 100%;
+    background-position: 0 0, 0 0, 50% 50%, 50% 50%;
+  }
+
+  .socket-hover {
+    transition: all 0.2s ease;
+  }
+
+  .socket-hover:hover {
+    transform: scale(1.4);
+    box-shadow: 0 0 8px currentColor;
   }
 }
