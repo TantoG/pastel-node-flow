@@ -173,7 +173,7 @@ export const Node = ({
     >
       <div className={`w-full h-full ${colorClass} rounded-lg border-2 border-border/20 overflow-hidden flex flex-col`}>
         {/* Header */}
-        <div className="px-3 py-2 border-b border-canvas-bg/10 bg-canvas-bg/5">
+        <div className="px-3 py-2 border-b border-black/20 bg-black/30">
           {isEditing ? (
             <input
               ref={inputRef}
@@ -182,12 +182,12 @@ export const Node = ({
               onChange={(e) => setEditValue(e.target.value)}
               onBlur={handleEditBlur}
               onKeyDown={handleEditKeyDown}
-              className="w-full bg-canvas-bg/20 text-canvas-bg text-xs font-medium px-1 py-0.5 rounded border border-canvas-bg/30 focus:outline-none focus:border-canvas-bg/50"
+              className="w-full bg-white/90 text-gray-900 text-xs font-medium px-1 py-0.5 rounded border border-white/50 focus:outline-none focus:ring-2 focus:ring-white/60"
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             />
           ) : (
-            <div className="text-xs font-medium text-canvas-bg flex items-center justify-between">
+            <div className="text-xs font-medium text-white flex items-center justify-between">
               <span className="truncate font-bold">
                 {testMode ? node.hiddenName : node.displayName}
               </span>
@@ -197,9 +197,9 @@ export const Node = ({
 
         {/* Body */}
         <div className="flex-1 flex items-center gap-2 px-3 py-1">
-          <IconComponent className="w-5 h-5 text-canvas-bg/60 flex-shrink-0" strokeWidth={1.5} />
+          <IconComponent className="w-5 h-5 text-black/70 flex-shrink-0" strokeWidth={1.5} />
           {node.description && (
-            <span className="text-[10px] text-canvas-bg/50 truncate leading-tight">
+            <span className="text-[10px] text-black/60 truncate leading-tight">
               {node.description}
             </span>
           )}
