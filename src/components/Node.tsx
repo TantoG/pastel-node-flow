@@ -188,12 +188,9 @@ export const Node = ({
             />
           ) : (
             <div className="text-xs font-medium text-canvas-bg flex items-center justify-between">
-              <span className="truncate">{node.displayName}</span>
-              {testMode && (
-                <span className="ml-2 text-[10px] opacity-60 font-mono bg-canvas-bg/20 px-1.5 py-0.5 rounded">
-                  {node.hiddenName}
-                </span>
-              )}
+              <span className="truncate font-bold">
+                {testMode ? node.hiddenName : node.displayName}
+              </span>
             </div>
           )}
         </div>
