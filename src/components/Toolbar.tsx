@@ -9,6 +9,7 @@ interface ToolbarProps {
   onSubmit: () => void;
   canUndo: boolean;
   canRedo: boolean;
+  submitted: boolean;
 }
 
 export const Toolbar = ({
@@ -19,6 +20,7 @@ export const Toolbar = ({
   onSubmit,
   canUndo,
   canRedo,
+  submitted,
 }: ToolbarProps) => {
   return (
     <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3">
@@ -27,11 +29,12 @@ export const Toolbar = ({
           variant={testMode ? "default" : "secondary"}
           size="sm"
           onClick={onToggleTestMode}
+          disabled={submitted}
           className="gap-2 relative"
         >
           {testMode ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
           <span className="font-medium">
-            {testMode ? 'Modo Profesor' : 'Modo Estudiante'}
+            {testMode ? 'Modo TEST' : 'Modo ESTUDIANTE'}
           </span>
           {testMode && (
             <span className="absolute -top-1 -right-1 w-2 h-2 bg-connection-valid rounded-full animate-pulse" />
@@ -51,7 +54,7 @@ export const Toolbar = ({
           variant="secondary"
           size="sm"
           onClick={onUndo}
-          disabled={!canUndo}
+          disabled={!canUndo || submitted}
           className="gap-2"
         >
           <Undo2 className="w-4 h-4" />
@@ -61,7 +64,7 @@ export const Toolbar = ({
           variant="secondary"
           size="sm"
           onClick={onRedo}
-          disabled={!canRedo}
+          disabled={!canRedo || submitted}
           className="gap-2"
         >
           <Redo2 className="w-4 h-4" />
@@ -74,10 +77,11 @@ export const Toolbar = ({
       <Button
         onClick={onSubmit}
         size="sm"
+        disabled={submitted}
         className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
       >
         <Send className="w-4 h-4" />
-        Entregar Evaluación
+        {submitted ? 'Evaluación Entregada' : 'Entregar Evaluación'}
       </Button>
 
       <div className="text-xs text-muted-foreground hidden md:block">

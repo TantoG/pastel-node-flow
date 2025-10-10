@@ -14,6 +14,8 @@ interface NodeProps {
   onConnectionEnd: () => void;
   isConnecting: boolean;
   onNameEdit: (newName: string) => void;
+  connectionStatus?: 'connected' | 'unconnected';
+  disabled?: boolean;
 }
 
 export const Node = ({
@@ -27,6 +29,8 @@ export const Node = ({
   onConnectionEnd,
   isConnecting,
   onNameEdit,
+  connectionStatus,
+  disabled = false,
 }: NodeProps) => {
   const [dragOffset, setDragOffset] = useState<Position>({ x: 0, y: 0 });
   const [isEditing, setIsEditing] = useState(false);
@@ -145,21 +149,27 @@ export const Node = ({
 
   const colorClass = `bg-node-${node.color}`;
   const shadowClass = isDragging ? 'node-shadow-lifted' : 'node-shadow';
+  
+  // Apply yellow tint for unconnected nodes when showing connection status
+  const nodeClassName = connectionStatus === 'unconnected' 
+    ? 'ring-2 ring-yellow-500/50 ring-offset-2 ring-offset-canvas-bg' 
+    : '';
 
   return (
     <div
       ref={nodeRef}
-      className={`absolute select-none ${shadowClass} transition-shadow duration-200`}
+      className={`absolute select-none ${shadowClass} ${nodeClassName} transition-all duration-200`}
       style={{
         left: node.position.x,
         top: node.position.y,
         width: 180,
         height: 90,
         zIndex: isDragging ? 1000 : isConnecting ? 999 : 1,
-        cursor: isDragging ? 'grabbing' : isEditing ? 'text' : 'grab',
+        cursor: disabled ? 'default' : isDragging ? 'grabbing' : isEditing ? 'text' : 'grab',
+        opacity: disabled ? 0.9 : 1,
       }}
-      onMouseDown={handleMouseDown}
-      onDoubleClick={handleDoubleClick}
+      onMouseDown={disabled ? undefined : handleMouseDown}
+      onDoubleClick={disabled ? undefined : handleDoubleClick}
     >
       <div className={`w-full h-full ${colorClass} rounded-lg border-2 border-border/20 overflow-hidden flex flex-col`}>
         {/* Header */}

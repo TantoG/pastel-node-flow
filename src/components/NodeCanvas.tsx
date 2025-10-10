@@ -6,16 +6,17 @@ import { Toolbar } from './Toolbar';
 import { toast } from 'sonner';
 
 const INITIAL_NODES: NodeData[] = [
-  { id: '1', hiddenName: 'A', displayName: 'Inicio', position: { x: 100, y: 200 }, color: 'pink', icon: 'play', description: 'Punto de inicio' },
-  { id: '2', hiddenName: 'B', displayName: 'Proceso 1', position: { x: 100, y: 320 }, color: 'orange', icon: 'settings', description: 'Configuración' },
-  { id: '3', hiddenName: 'C', displayName: 'Proceso 2', position: { x: 100, y: 440 }, color: 'gray', icon: 'cpu', description: 'Procesamiento' },
-  { id: '4', hiddenName: 'D', displayName: 'Final', position: { x: 100, y: 560 }, color: 'blue', icon: 'check-circle', description: 'Resultado' },
+  { id: '1', hiddenName: 'A', displayName: 'MAPPING', position: { x: 100, y: 200 }, color: 'pink', icon: 'map', description: 'Coordenadas' },
+  { id: '2', hiddenName: 'B', displayName: 'IMAGE', position: { x: 100, y: 320 }, color: 'orange', icon: 'image', description: 'Textura' },
+  { id: '3', hiddenName: 'C', displayName: 'PRINCIPLED BSDF', position: { x: 100, y: 440 }, color: 'gray', icon: 'sparkles', description: 'Material' },
+  { id: '4', hiddenName: 'D', displayName: 'OUTPUT LAYER', position: { x: 100, y: 560 }, color: 'blue', icon: 'layers', description: 'Salida' },
 ];
 
 export const NodeCanvas = () => {
   const [nodes, setNodes] = useState<NodeData[]>(INITIAL_NODES);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [testMode, setTestMode] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [draggingNode, setDraggingNode] = useState<string | null>(null);
   const [connectingFrom, setConnectingFrom] = useState<{ nodeId: string; x: number; y: number } | null>(null);
   const [mousePos, setMousePos] = useState<Position>({ x: 0, y: 0 });
@@ -193,6 +194,8 @@ export const NodeCanvas = () => {
     const isComplete = sequence.length === 4 && 
                       sequence.every((name, i) => name === correctSequence[i]);
 
+    setSubmitted(true);
+
     if (isComplete && allValid) {
       toast.success('¡Excelente! Secuencia correcta A → B → C → D', {
         duration: 5000,
@@ -223,6 +226,33 @@ export const NodeCanvas = () => {
     toast.info('Conexión eliminada');
   };
 
+  // Get connection status for a node (for yellow highlighting)
+  const getNodeConnectionStatus = (nodeId: string) => {
+    const hasInput = connections.some(c => c.toNodeId === nodeId);
+    const hasOutput = connections.some(c => c.fromNodeId === nodeId);
+    const node = nodes.find(n => n.id === nodeId);
+    
+    // Node A should only have output, Node D should only have input
+    if (node?.hiddenName === 'A') return hasOutput ? 'connected' : 'unconnected';
+    if (node?.hiddenName === 'D') return hasInput ? 'connected' : 'unconnected';
+    
+    // Nodes B and C should have both
+    return (hasInput && hasOutput) ? 'connected' : 'unconnected';
+  };
+
+  // Generate correct solution nodes
+  const correctNodes: NodeData[] = INITIAL_NODES.map((node, index) => ({
+    ...node,
+    id: `correct-${node.id}`,
+    position: { x: 500, y: 200 + index * 120 },
+  }));
+
+  const correctConnections: Connection[] = [
+    { id: 'correct-1-2', fromNodeId: 'correct-1', toNodeId: 'correct-2', isValid: true },
+    { id: 'correct-2-3', fromNodeId: 'correct-2', toNodeId: 'correct-3', isValid: true },
+    { id: 'correct-3-4', fromNodeId: 'correct-3', toNodeId: 'correct-4', isValid: true },
+  ];
+
   return (
     <div className="w-full h-screen flex flex-col bg-canvas-bg">
       <Toolbar
@@ -233,6 +263,7 @@ export const NodeCanvas = () => {
         onSubmit={handleSubmit}
         canUndo={historyIndex > 0}
         canRedo={historyIndex < history.length - 1}
+        submitted={submitted}
       />
       
       <div
@@ -251,7 +282,14 @@ export const NodeCanvas = () => {
           }}
           className="relative w-full h-full"
         >
-          {/* Render connections */}
+          {/* Student's work label */}
+          {submitted && (
+            <div className="absolute top-4 left-4 bg-canvas-fg/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-canvas-fg/20">
+              <p className="text-sm font-medium text-canvas-fg">Tu respuesta:</p>
+            </div>
+          )}
+
+          {/* Render student connections */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ overflow: 'visible' }}>
             {connections.map(conn => {
               const fromNode = nodes.find(n => n.id === conn.fromNodeId);
@@ -263,14 +301,14 @@ export const NodeCanvas = () => {
                   key={conn.id}
                   from={{ x: fromNode.position.x + 180, y: fromNode.position.y + 45 }}
                   to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
-                  isValid={conn.isValid}
-                  onDelete={() => deleteConnection(conn.id)}
+                  isValid={submitted ? conn.isValid : null}
+                  onDelete={() => !submitted && deleteConnection(conn.id)}
                 />
               );
             })}
             
             {/* Rubber band connection */}
-            {connectingFrom && (
+            {connectingFrom && !submitted && (
               <ConnectionLine
                 from={{ x: connectingFrom.x, y: connectingFrom.y }}
                 to={mousePos}
@@ -278,24 +316,68 @@ export const NodeCanvas = () => {
                 onDelete={() => {}}
               />
             )}
+
+            {/* Render correct solution connections */}
+            {submitted && correctConnections.map(conn => {
+              const fromNode = correctNodes.find(n => n.id === conn.fromNodeId);
+              const toNode = correctNodes.find(n => n.id === conn.toNodeId);
+              if (!fromNode || !toNode) return null;
+
+              return (
+                <ConnectionLine
+                  key={conn.id}
+                  from={{ x: fromNode.position.x + 180, y: fromNode.position.y + 45 }}
+                  to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
+                  isValid={true}
+                  onDelete={() => {}}
+                />
+              );
+            })}
           </svg>
 
-          {/* Render nodes */}
+          {/* Render student nodes */}
           {nodes.map(node => (
             <Node
               key={node.id}
               node={node}
               testMode={testMode}
               isDragging={draggingNode === node.id}
-              onDragStart={() => handleNodeDragStart(node.id)}
-              onDrag={(pos) => handleNodeDrag(node.id, pos)}
+              onDragStart={() => !submitted && handleNodeDragStart(node.id)}
+              onDrag={(pos) => !submitted && handleNodeDrag(node.id, pos)}
               onDragEnd={handleNodeDragEnd}
-              onConnectionStart={(pos) => handleConnectionStart(node.id, pos)}
-              onConnectionEnd={() => handleConnectionEnd(node.id)}
+              onConnectionStart={(pos) => !submitted && handleConnectionStart(node.id, pos)}
+              onConnectionEnd={() => !submitted && handleConnectionEnd(node.id)}
               isConnecting={connectingFrom?.nodeId === node.id}
               onNameEdit={(newName) => handleNodeNameEdit(node.id, newName)}
+              connectionStatus={submitted ? getNodeConnectionStatus(node.id) : undefined}
+              disabled={submitted}
             />
           ))}
+
+          {/* Render correct solution nodes */}
+          {submitted && (
+            <>
+              <div className="absolute left-[500px] top-4 bg-canvas-fg/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-canvas-fg/20">
+                <p className="text-sm font-medium text-canvas-fg">Respuesta correcta:</p>
+              </div>
+              {correctNodes.map(node => (
+                <Node
+                  key={node.id}
+                  node={node}
+                  testMode={testMode}
+                  isDragging={false}
+                  onDragStart={() => {}}
+                  onDrag={() => {}}
+                  onDragEnd={() => {}}
+                  onConnectionStart={() => {}}
+                  onConnectionEnd={() => {}}
+                  isConnecting={false}
+                  onNameEdit={() => {}}
+                  disabled={true}
+                />
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>

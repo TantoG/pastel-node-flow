@@ -24,9 +24,11 @@ export const ConnectionLine = ({ from, to, isValid, onDelete }: ConnectionLinePr
 
   const path = `M ${from.x} ${from.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${to.x} ${to.y}`;
 
-  let strokeColor = 'hsl(var(--connection-neutral))';
-  if (isValid === true) strokeColor = 'hsl(var(--connection-valid))';
-  if (isValid === false) strokeColor = 'hsl(var(--connection-invalid))';
+  const strokeColor = isValid === null 
+    ? 'hsl(var(--canvas-fg) / 0.5)' // White/neutral for unsubmitted or rubber band
+    : isValid 
+      ? 'hsl(142, 76%, 36%)' // Green for correct
+      : 'hsl(0, 84%, 60%)'; // Red for incorrect
 
   const strokeWidth = isHovered ? 3 : 2;
 

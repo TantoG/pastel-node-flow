@@ -11,6 +11,7 @@ export interface NodeData {
   color: 'pink' | 'orange' | 'gray' | 'blue';
   icon: string; // lucide icon name
   description?: string;
+  connectionStatus?: 'connected' | 'unconnected';
 }
 
 export interface Connection {
