@@ -314,6 +314,13 @@ export const NodeCanvas = () => {
           }}
           className="relative w-full h-full"
         >
+          {/* Title */}
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50">
+            <h1 className="text-4xl font-heading font-extrabold text-white tracking-wider">
+              ETAPAS DE SHADING
+            </h1>
+          </div>
+
           {/* Student's work label */}
           {submitted && (
             <div className="absolute top-4 left-4 bg-canvas-fg/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-canvas-fg/20">
