@@ -147,13 +147,25 @@ export const Node = ({
     };
   }, [isDragging, dragOffset, onDrag, onDragEnd]);
 
-  const colorClass = `bg-node-${node.color}`;
   const shadowClass = isDragging ? 'node-shadow-lifted' : 'node-shadow';
   
   // Apply yellow tint for unconnected nodes when showing connection status
   const nodeClassName = connectionStatus === 'unconnected' 
     ? 'ring-2 ring-yellow-500/50 ring-offset-2 ring-offset-canvas-bg' 
     : '';
+  
+  // Get title color based on hiddenName
+  const getTitleColorClass = (hiddenName: string) => {
+    switch(hiddenName) {
+      case 'A': return 'bg-[hsl(var(--node-a-title))]';
+      case 'B': return 'bg-[hsl(var(--node-b-title))]';
+      case 'C': return 'bg-[hsl(var(--node-c-title))]';
+      case 'D': return 'bg-[hsl(var(--node-d-title))]';
+      default: return 'bg-black/30';
+    }
+  };
+  
+  const titleColorClass = getTitleColorClass(node.hiddenName);
 
   return (
     <div
@@ -171,9 +183,9 @@ export const Node = ({
       onMouseDown={disabled ? undefined : handleMouseDown}
       onDoubleClick={disabled ? undefined : handleDoubleClick}
     >
-      <div className={`w-full h-full ${colorClass} rounded-lg border-2 border-border/20 overflow-hidden flex flex-col`}>
+      <div className={`w-full h-full bg-[hsl(var(--node-bg))] rounded-lg border-2 border-border/20 overflow-hidden flex flex-col`}>
         {/* Header */}
-        <div className="px-3 py-2 border-b border-black/20 bg-black/30">
+        <div className={`px-3 py-2 border-b border-black/20 ${titleColorClass}`}>
           {isEditing ? (
             <input
               ref={inputRef}
@@ -197,9 +209,9 @@ export const Node = ({
 
         {/* Body */}
         <div className="flex-1 flex items-center gap-2 px-3 py-1">
-          <IconComponent className="w-5 h-5 text-black/70 flex-shrink-0" strokeWidth={1.5} />
+          <IconComponent className="w-5 h-5 text-white/70 flex-shrink-0" strokeWidth={1.5} />
           {node.description && (
-            <span className="text-[10px] text-black/60 truncate leading-tight">
+            <span className="text-[10px] text-white/60 truncate leading-tight">
               {node.description}
             </span>
           )}

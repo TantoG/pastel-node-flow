@@ -240,11 +240,11 @@ export const NodeCanvas = () => {
     return (hasInput && hasOutput) ? 'connected' : 'unconnected';
   };
 
-  // Generate correct solution nodes
+  // Generate correct solution nodes - positioned horizontally at the bottom
   const correctNodes: NodeData[] = INITIAL_NODES.map((node, index) => ({
     ...node,
     id: `correct-${node.id}`,
-    position: { x: 500, y: 200 + index * 120 },
+    position: { x: 100 + index * 220, y: 750 },
   }));
 
   const correctConnections: Connection[] = [
@@ -406,7 +406,7 @@ export const NodeCanvas = () => {
           {/* Render correct solution nodes */}
           {submitted && (
             <>
-              <div className="absolute left-[500px] top-4 bg-canvas-fg/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-canvas-fg/20">
+              <div className="absolute left-[100px] top-[700px] bg-canvas-fg/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-canvas-fg/20">
                 <p className="text-sm font-medium text-canvas-fg">Respuesta correcta:</p>
               </div>
               {correctNodes.map(node => (

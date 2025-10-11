@@ -38,11 +38,12 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* Node colors - pastel palette */
-    --node-pink: 340 82% 80%;
-    --node-orange: 25 90% 75%;
-    --node-gray: 210 10% 70%;
-    --node-blue: 210 82% 75%;
+    /* Node colors - specific for each node */
+    --node-bg: 0 0% 13%;
+    --node-a-title: 237 42% 31%;
+    --node-b-title: 23 55% 27%;
+    --node-c-title: 158 39% 24%;
+    --node-d-title: 291 22% 41%;
 
     /* Canvas colors */
     --canvas-bg: 210 11% 17%;
