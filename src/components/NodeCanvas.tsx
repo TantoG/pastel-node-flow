@@ -253,6 +253,38 @@ export const NodeCanvas = () => {
     { id: 'correct-3-4', fromNodeId: 'correct-3', toNodeId: 'correct-4', isValid: true },
   ];
 
+  // Generate missing connections for student's work
+  const getMissingConnections = (): Connection[] => {
+    if (!submitted) return [];
+    
+    const expectedConnections = [
+      { from: '1', to: '2' }, // A -> B
+      { from: '2', to: '3' }, // B -> C
+      { from: '3', to: '4' }, // C -> D
+    ];
+    
+    const missingConnections: Connection[] = [];
+    
+    expectedConnections.forEach(({ from, to }) => {
+      const exists = connections.some(
+        c => c.fromNodeId === from && c.toNodeId === to
+      );
+      
+      if (!exists) {
+        missingConnections.push({
+          id: `missing-${from}-${to}`,
+          fromNodeId: from,
+          toNodeId: to,
+          isValid: 'missing',
+        });
+      }
+    });
+    
+    return missingConnections;
+  };
+
+  const missingConnections = getMissingConnections();
+
   return (
     <div className="w-full h-screen flex flex-col bg-canvas-bg">
       <Toolbar
@@ -303,6 +335,23 @@ export const NodeCanvas = () => {
                   to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
                   isValid={submitted ? conn.isValid : null}
                   onDelete={() => !submitted && deleteConnection(conn.id)}
+                />
+              );
+            })}
+            
+            {/* Missing connections (yellow dashed) */}
+            {missingConnections.map(conn => {
+              const fromNode = nodes.find(n => n.id === conn.fromNodeId);
+              const toNode = nodes.find(n => n.id === conn.toNodeId);
+              if (!fromNode || !toNode) return null;
+
+              return (
+                <ConnectionLine
+                  key={conn.id}
+                  from={{ x: fromNode.position.x + 180, y: fromNode.position.y + 45 }}
+                  to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
+                  isValid="missing"
+                  onDelete={() => {}}
                 />
               );
             })}

@@ -4,7 +4,7 @@ import { useState } from 'react';
 interface ConnectionLineProps {
   from: Position;
   to: Position;
-  isValid: boolean | null;
+  isValid: boolean | null | 'missing';
   onDelete: () => void;
 }
 
@@ -25,12 +25,15 @@ export const ConnectionLine = ({ from, to, isValid, onDelete }: ConnectionLinePr
   const path = `M ${from.x} ${from.y} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${to.x} ${to.y}`;
 
   const strokeColor = isValid === null 
-    ? 'hsl(var(--canvas-fg) / 0.5)' // White/neutral for unsubmitted or rubber band
-    : isValid 
-      ? 'hsl(142, 76%, 36%)' // Green for correct
-      : 'hsl(0, 84%, 60%)'; // Red for incorrect
+    ? '#ffffff' // White for unsubmitted or rubber band
+    : isValid === 'missing'
+      ? 'hsl(48, 96%, 53%)' // Yellow for missing connections
+      : isValid 
+        ? 'hsl(142, 76%, 36%)' // Green for correct
+        : 'hsl(0, 84%, 60%)'; // Red for incorrect
 
   const strokeWidth = isHovered ? 3 : 2;
+  const isDashed = isValid === 'missing';
 
   return (
     <g
@@ -59,6 +62,7 @@ export const ConnectionLine = ({ from, to, isValid, onDelete }: ConnectionLinePr
         fill="none"
         className="transition-all duration-200"
         strokeLinecap="round"
+        strokeDasharray={isDashed ? "8,4" : undefined}
         style={{
           filter: isHovered ? 'drop-shadow(0 0 6px currentColor)' : 'none',
         }}

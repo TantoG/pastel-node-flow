@@ -18,7 +18,7 @@ export interface Connection {
   id: string;
   fromNodeId: string;
   toNodeId: string;
-  isValid: boolean;
+  isValid: boolean | 'missing';
 }
 
 export interface HistoryState {
