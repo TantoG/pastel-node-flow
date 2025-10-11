@@ -342,6 +342,7 @@ export const NodeCanvas = () => {
                   to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
                   isValid={submitted ? conn.isValid : null}
                   onDelete={() => !submitted && deleteConnection(conn.id)}
+                  canDelete={!submitted}
                 />
               );
             })}
@@ -359,6 +360,7 @@ export const NodeCanvas = () => {
                   to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
                   isValid="missing"
                   onDelete={() => {}}
+                  canDelete={false}
                 />
               );
             })}
@@ -370,6 +372,7 @@ export const NodeCanvas = () => {
                 to={mousePos}
                 isValid={null}
                 onDelete={() => {}}
+                canDelete={false}
               />
             )}
 
@@ -386,6 +389,7 @@ export const NodeCanvas = () => {
                   to={{ x: toNode.position.x, y: toNode.position.y + 45 }}
                   isValid={true}
                   onDelete={() => {}}
+                  canDelete={false}
                 />
               );
             })}
