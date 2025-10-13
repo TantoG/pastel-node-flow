@@ -5,12 +5,29 @@ import { ConnectionLine } from './ConnectionLine';
 import { Toolbar } from './Toolbar';
 import { toast } from 'sonner';
 
-const INITIAL_NODES: NodeData[] = [
-  { id: '1', hiddenName: 'A', displayName: 'MAPPING', position: { x: 100, y: 200 }, color: 'pink', icon: 'map', description: 'Coordenadas' },
-  { id: '2', hiddenName: 'B', displayName: 'IMAGE', position: { x: 100, y: 320 }, color: 'orange', icon: 'image', description: 'Textura' },
-  { id: '3', hiddenName: 'C', displayName: 'PRINCIPLED BSDF', position: { x: 100, y: 440 }, color: 'gray', icon: 'sparkles', description: 'Material' },
-  { id: '4', hiddenName: 'D', displayName: 'OUTPUT LAYER', position: { x: 100, y: 560 }, color: 'blue', icon: 'layers', description: 'Salida' },
-];
+// Generate random positions for nodes
+const generateRandomPositions = (): NodeData[] => {
+  const baseNodes: NodeData[] = [
+    { id: '1', hiddenName: 'A', displayName: 'MAPPING', color: 'pink' as const, icon: 'map', description: 'Coordenadas', position: { x: 0, y: 0 } },
+    { id: '2', hiddenName: 'B', displayName: 'IMAGE', color: 'orange' as const, icon: 'image', description: 'Textura', position: { x: 0, y: 0 } },
+    { id: '3', hiddenName: 'C', displayName: 'PRINCIPLED BSDF', color: 'gray' as const, icon: 'sparkles', description: 'Material', position: { x: 0, y: 0 } },
+    { id: '4', hiddenName: 'D', displayName: 'OUTPUT LAYER', color: 'blue' as const, icon: 'layers', description: 'Salida', position: { x: 0, y: 0 } },
+  ];
+
+  // Shuffle the array
+  const shuffled = [...baseNodes].sort(() => Math.random() - 0.5);
+
+  // Generate random positions with spacing
+  return shuffled.map((node, index) => ({
+    ...node,
+    position: {
+      x: 100 + (index % 2) * 300 + Math.random() * 100,
+      y: 180 + Math.floor(index / 2) * 180 + Math.random() * 80,
+    },
+  }));
+};
+
+const INITIAL_NODES: NodeData[] = generateRandomPositions();
 
 export const NodeCanvas = () => {
   const [nodes, setNodes] = useState<NodeData[]>(INITIAL_NODES);
