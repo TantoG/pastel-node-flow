@@ -257,12 +257,13 @@ export const NodeCanvas = () => {
     return (hasInput && hasOutput) ? 'connected' : 'unconnected';
   };
 
-  // Generate correct solution nodes - positioned horizontally at the bottom
-  const correctNodes: NodeData[] = INITIAL_NODES.map((node, index) => ({
-    ...node,
-    id: `correct-${node.id}`,
-    position: { x: 100 + index * 220, y: 750 },
-  }));
+  // Generate correct solution nodes - positioned horizontally at the bottom in correct order A, B, C, D
+  const correctNodes: NodeData[] = [
+    { id: 'correct-1', hiddenName: 'A', displayName: 'MAPPING', color: 'pink' as const, icon: 'map', description: 'Coordenadas', position: { x: 100, y: 750 } },
+    { id: 'correct-2', hiddenName: 'B', displayName: 'IMAGE', color: 'orange' as const, icon: 'image', description: 'Textura', position: { x: 320, y: 750 } },
+    { id: 'correct-3', hiddenName: 'C', displayName: 'PRINCIPLED BSDF', color: 'gray' as const, icon: 'sparkles', description: 'Material', position: { x: 540, y: 750 } },
+    { id: 'correct-4', hiddenName: 'D', displayName: 'OUTPUT LAYER', color: 'blue' as const, icon: 'layers', description: 'Salida', position: { x: 760, y: 750 } },
+  ];
 
   const correctConnections: Connection[] = [
     { id: 'correct-1-2', fromNodeId: 'correct-1', toNodeId: 'correct-2', isValid: true },
